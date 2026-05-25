@@ -1,0 +1,11 @@
+[project]
+name = "projekt-bezrobocie"
+version = "0.1.0"
+description = "Analiza bezrobocia w Polsce - Projekt na zaliczenie"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "flask>=3.0.0",
+    "pandas>=2.0.0",
+    "plotly>=5.17.0"
+]

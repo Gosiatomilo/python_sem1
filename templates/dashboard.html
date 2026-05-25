@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Analizy Bezrobocia</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #0d6efd; color: white; padding: 15px 30px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        .header h1 { margin: 0; font-size: 24px; }
+        .header a { color: white; text-decoration: none; font-weight: bold; background: #dc3545; padding: 10px 20px; border-radius: 5px; transition: 0.3s;}
+        .header a:hover { background: #bb2d3b; }
+        .card { background: white; padding: 25px; margin-bottom: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .analysis-text { line-height: 1.8; color: #495057; font-size: 16px;}
+        h2, h3 { color: #212529; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Witaj, {{ username }}! Analiza Bezrobocia w Polsce</h1>
+        <a href="{{ url_for('logout') }}">Wyloguj</a>
+    </div>
+
+    <div class="card analysis-text">
+        <h2>Wnioski z analizy danych GUS (1990-2025)</h2>
+        <p>
+            Na podstawie wprowadzonych danych rzeczywistych z Głównego Urzędu Statystycznego przeprowadzono analizę struktury bezrobocia.
+            Analiza interaktywnych wykresów wskazuje jasno, że pomijając nagłe załamania historyczne (np. piki bezrobocia w latach 2002-2004 oraz kryzys światowy koło 2013 roku), 
+            <strong>bezrobocie w Polsce systematycznie maleje w ciągu ostatnich lat we wszystkich głównych grupach badawczych</strong>. Widać wyraźne spadki ogólnej 
+            liczby bezrobotnych tak w podziale na płeć, jak i bezwzględnych liczbach osób zgłaszających bezrobocie według wieku i wykształcenia.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>1. Analiza ze względu na płeć</h3>
+        <div>{{ gender_html|safe }}</div>
+    </div>
+
+    <div class="card">
+        <h3>2. Analiza ze względu na wiek</h3>
+        <div>{{ age_html|safe }}</div>
+    </div>
+
+    <div class="card">
+        <h3>3. Analiza ze względu na wykształcenie</h3>
+        <div>{{ edu_html|safe }}</div>
+    </div>
+</body>
+</html>
