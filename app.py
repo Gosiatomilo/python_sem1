@@ -4,10 +4,9 @@ import plotly.express as px
 import os
 
 app = Flask(__name__)
-# Secret key jest potrzebny, aby obsłużyć bezpieczne sesje logowania
 app.secret_key = 'super_tajny_klucz_zaliczeniowy'
 
-# --- LOGIKA BAZY DANYCH (Logowanie) ---
+# LOGIKA BAZY DANYCH
 def verify_user(username, password):
     if not os.path.exists("users.csv"):
         return False
@@ -15,21 +14,16 @@ def verify_user(username, password):
     user = users_df[(users_df['username'] == username) & (users_df['password'] == password)]
     return not user.empty
 
-# --- LOGIKA ANALIZY DANYCH ---
+# LOGIKA ANALIZY DANYCH
 def load_and_process_data():
     file_path = "dane.csv"
-    # Pomijamy pierwsze 4 wiersze z nagłówkami opisowymi z oryginalnego pliku GUS
     df = pd.read_csv(file_path, skiprows=4)
     df.columns = [str(c).strip() for c in df.columns]
-    
-    # Interesują nas lata pełne 1990-2025
     years_cols = [str(y) for y in range(1990, 2026)]
     
-    # Funkcja czyszcząca rzędy z liczb (usuwa spacje: "1 126 140" -> 1126140, "x" -> NaN)
     def clean_row(idx):
         return df.loc[idx, years_cols].astype(str).str.replace(r'\s+', '', regex=True).str.replace('x', 'NaN').astype(float)
     
-    # 1. PŁEĆ (Indeksy rzędów wyciągnięte z Twojego pliku: 3=Ogółem, 8=Kobiety)
     total = clean_row(3)
     women = clean_row(8)
     men = total - women
@@ -40,14 +34,12 @@ def load_and_process_data():
         'Mężczyźni': men.values
     })
     
-    # 2. WIEK (Rzędy 13-19)
     age_labels = ["15-17", "18-24", "25-34", "35-44", "45-54", "55-59", "60 i więcej"]
     age_indices = range(13, 20)
     df_age = pd.DataFrame({'Rok': years_cols})
     for idx, label in zip(age_indices, age_labels):
         df_age[label] = clean_row(idx).values
         
-    # 3. WYKSZTAŁCENIE (Rzędy 21-25)
     edu_labels = ["wyższe", "policealne/średnie zawodowe", "średnie ogólnokształcące", "zasadnicze zawodowe", "gimnazjalne/podstawowe"]
     edu_indices = range(21, 26)
     df_edu = pd.DataFrame({'Rok': years_cols})
@@ -56,10 +48,9 @@ def load_and_process_data():
         
     return df_gender, df_age, df_edu
 
-# --- ROUTING WEBOWY (Podstrony) ---
+# ROUTING WEBOWY
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    # Zabezpieczenie - jeżeli już zalogowany, wyślij do dashboardu
     if session.get('logged_in'):
         return redirect(url_for('dashboard'))
         
@@ -82,13 +73,11 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    # Sprawdzenie czy użytkownik ma dostęp (czy jest zalogowany)
     if not session.get('logged_in'):
         return redirect(url_for('login'))
         
     df_gender, df_age, df_edu = load_and_process_data()
     
-    # Tworzenie wykresów za pomocą biblioteki Plotly i renderowanie do formatu HTML
     fig_gender = px.line(df_gender, x='Rok', y=['Kobiety', 'Mężczyźni'], title="Bezrobocie wg płci (1990-2025)", labels={'value': 'Liczba bezrobotnych', 'variable': 'Płeć'}, markers=True)
     gender_html = fig_gender.to_html(full_html=False)
     
